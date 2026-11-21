@@ -17,6 +17,19 @@ kept the fastest of ten 200-decode batches. ffbase64, simdutf, Go, and .NET
 reused output buffers. The workload and comparator APIs follow
 [Daniel Lemire's email attachment benchmark](https://lemire.me/blog/2026/11/20/decoding-base64-email-attachments/).
 
+## Across the cache hierarchy
+
+On the 9950X3D's 32 MiB L3 CCD, ffbase64 reaches **118.78 GB/s** at a 16 KiB
+attachment, **4.09×** simdutf. At 256 MiB it sustains **27.09 GB/s** versus
+**21.19 GB/s** for simdutf, a **28%** lead.
+
+![MIME Base64 throughput from 1 KiB to 256 MiB. ffbase64 leads across all 15 tested sizes, with the largest gap in L1D.](experiments/ffbase64-mime-size-sweep.png)
+
+Both decoders reused the same aligned input and output buffers. The cache
+bands use their combined footprint. Each of three runs took the median of five
+trials with alternating decoder order and checked every decoded byte after
+each timed batch.
+
 ## Build and test
 
 ```sh
